@@ -1,4 +1,4 @@
-﻿namespace RefreshRateSwitcher
+﻿namespace RefreshRateAutoSwitcher
 {
     partial class Form1
     {
@@ -130,11 +130,11 @@
         #endregion
 
         private Label label1;
-        public ComboBox comboBox1;
+        private ComboBox comboBox1;
         private Button button1;
-        public TextBox freq;
+        private TextBox freq;
         private Label label2;
         private Label label3;
-        public Label label4;
+        private Label label4;
     }
 }
