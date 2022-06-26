@@ -1,0 +1,6 @@
+﻿EnumDisplayDevicesW
+DISPLAY_DEVICEW
+ChangeDisplaySettingsExW
+EnumDisplaySettingsW
+CDS_UPDATEREGISTRY
+HWND
