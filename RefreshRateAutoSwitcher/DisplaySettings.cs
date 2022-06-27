@@ -26,14 +26,12 @@ namespace RefreshRateAutoSwitcher
         {
             try
             {
-
                 //Get currrent config
 
                 adapterName = adapterName.Substring(0, adapterName.IndexOf("\\Monitor"));
                 DEVMODEW mode = GetCurrentSettings(adapterName);
 
                 mode.dmDisplayFrequency = freq;
-
 
                 unsafe
                 {
@@ -42,15 +40,12 @@ namespace RefreshRateAutoSwitcher
                     return result.ToString();
                 }
 
-
-
             }
             catch (Exception ex)
             {
                 return ex.Message;
 
             }
-
         }
 
         public DisplaySettings()
@@ -86,8 +81,6 @@ namespace RefreshRateAutoSwitcher
                         Console.WriteLine(ex);
 
                     }
-
-
                 }
             }
             catch (Exception ex)

@@ -9,6 +9,7 @@ namespace RefreshRateAutoSwitcher
     {
         public static Form1 form1;
         public static DisplaySettings displaySettings;
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
