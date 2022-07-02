@@ -26,7 +26,7 @@ namespace RefreshRateAutoSwitcher
         {
             try
             {
-                //Get currrent config
+                //Get currrent config of the adapter, not the monitor itself
 
                 adapterName = adapterName.Substring(0, adapterName.IndexOf("\\Monitor"));
                 DEVMODEW mode = GetCurrentSettings(adapterName);

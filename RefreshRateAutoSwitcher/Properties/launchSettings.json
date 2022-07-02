@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "RefreshRateAutoSwitcher": {
+      "commandName": "Project",
+      "commandLineArgs": "/autorun"
+    },
+    "RefreshRateSwitcher": {
+      "commandName": "Project"
+    }
+  }
+}

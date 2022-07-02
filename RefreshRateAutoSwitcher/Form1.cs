@@ -1,5 +1,6 @@
 using Windows.Win32.Graphics.Gdi;
 using System.Configuration;
+using Microsoft.Win32.TaskScheduler;
 
 namespace RefreshRateAutoSwitcher
 {
@@ -9,7 +10,10 @@ namespace RefreshRateAutoSwitcher
         Configuration config =
            ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-        public Form1()
+        bool autorun = false;
+        static string taskName = @"RefreshRateAutoSwitcher";
+        static int powerSourceChangeEventID = 105;
+        public Form1(bool autorun)
         {
             InitializeComponent();
 
@@ -19,6 +23,7 @@ namespace RefreshRateAutoSwitcher
             foreach (DISPLAY_DEVICEW mode in dds)
             {
                 var adapterName = mode.DeviceName.ToString();
+                //Look for deviceString of the graphics card, only need deviceName of the video adapter for display settings
                 dict.Add(adapterName, string.Format("{0}, {1}, {2}", adapterName, dds_adapter.Where(o => o.DeviceName.ToString() == adapterName.Substring(0, adapterName.IndexOf("\\Monitor"))).FirstOrDefault().DeviceString, mode.DeviceString));
             }
 
@@ -47,15 +52,60 @@ namespace RefreshRateAutoSwitcher
                 label4.Text = "Error looading config";
             }
 
+            label4.Text = "";
+
+            if (autorun)
+            {
+                this.autorun = autorun;
+            }
+
+            AddTask_Update();
+
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void AddTask_Update()
         {
-
+            try
+            {
+                using (TaskService ts = new TaskService())
+                {
+                    //Check if task exist
+                    Microsoft.Win32.TaskScheduler.Task t = TaskService.Instance.GetTask(taskName);
+                    if (t != null)
+                    {
+                        AddTask.Text = "Remove task from Task Scheduler";
+                    }
+                    else
+                    {
+                        AddTask.Text = "Add task to Task Scheduler";
+                    }
+                }
+            }
+            catch
+            {
+                label4.Text = "Error accessing Task Scheduler";
+            }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        //For task scheduler
+        private void Form1_autorun(object sender, EventArgs e)
         {
+            if (autorun)
+            {
+                ApplyButton_Click(null, null);
+                //Auto exit if success
+                if (label4.Text == "DISP_CHANGE_SUCCESSFUL")
+                {
+                    Application.Exit();
+                };
+
+            }
+        }
+
+        private void ApplyButton_Click(object sender, EventArgs e)
+        {
+            SaveSettings_Click(null, null);
+
             try
             {
                 uint freq;
@@ -94,23 +144,7 @@ namespace RefreshRateAutoSwitcher
 
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        
-        private void button2_Click(object sender, EventArgs e)
+        private void SaveSettings_Click(object sender, EventArgs e)
         {
             //Save settings
 
@@ -150,6 +184,66 @@ namespace RefreshRateAutoSwitcher
             catch (Exception ex)
             {
                 label4.Text = ex.Message;
+            }
+
+        }
+
+
+        private void AddTask_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+                using (TaskService ts = new TaskService())
+                {
+                    //Check if task exist
+                    Microsoft.Win32.TaskScheduler.Task t = TaskService.Instance.GetTask(taskName);
+                    if (t == null)
+                    {
+                        //add
+                        try
+                        {
+
+                            TaskDefinition td = ts.NewTask();
+                            td.RegistrationInfo.Description = "Auto switch refresh rate when on battery/plugged in.";
+                            td.Triggers.Add(new EventTrigger("System", "Microsoft-Windows-Kernel-Power", powerSourceChangeEventID));
+                            td.Actions.Add(new ExecAction(Application.ExecutablePath, Program.autorunArg));
+                            td.Settings.StopIfGoingOnBatteries = false;
+                            td.Settings.DisallowStartIfOnBatteries = false;
+
+                            ts.RootFolder.RegisterTaskDefinition(taskName, td);
+
+
+                            label4.Text = "Task added to task scheduler";
+                            AddTask_Update();
+                        }
+                        catch
+                        {
+                            label4.Text = "Error adding task";
+                        }
+
+                    }
+                    else
+                    {
+                        //remove
+                        try
+                        {
+                            ts.RootFolder.DeleteFolder(t.Name);
+
+                            label4.Text = "Task removed from task scheduler";
+                            AddTask_Update();
+                        }
+                        catch
+                        {
+                            label4.Text = "Error removing task";
+                        }
+
+                    };
+                }
+            }
+            catch
+            {
+                label4.Text = "Error accessing task scheduler";
             }
 
         }
