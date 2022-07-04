@@ -1,5 +1,7 @@
 # RefreshRateAutoSwitcher
 
+![ScreenShot](Screenshot.png)
+
 Auto switch between high/low refresh rate when unplug/plugging in Windows laptop. 
 
 - Use Task Scheduler, does not keep running in background
