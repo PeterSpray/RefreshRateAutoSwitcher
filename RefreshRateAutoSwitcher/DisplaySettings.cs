@@ -98,5 +98,27 @@ namespace RefreshRateAutoSwitcher
             else
                 return dds;
         }
+
+        public List<uint> Get_REFRESH_RATE(string adapterName)
+        {
+            adapterName = adapterName.Substring(0, adapterName.IndexOf("\\Monitor"));
+
+            DEVMODEW mode = new DEVMODEW();
+            int modeIndex = 0;
+            List<DEVMODEW> modes = new List<DEVMODEW>();
+            var currSettings = GetCurrentSettings(adapterName);
+            while (EnumDisplaySettings(adapterName, (ENUM_DISPLAY_SETTINGS_MODE)modeIndex, ref mode) == true) // Mode found  
+            {
+                if(currSettings.dmPelsWidth == mode.dmPelsWidth && currSettings.dmPelsHeight == mode.dmPelsHeight)
+                {
+                    modes.Add(mode);                 
+                }
+                modeIndex++;
+            }
+
+            return modes.GroupBy(x => x.dmDisplayFrequency).Select(x => x.First().dmDisplayFrequency).ToList();
+
+
+        }
     }
 }

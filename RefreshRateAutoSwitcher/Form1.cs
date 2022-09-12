@@ -34,12 +34,14 @@ namespace RefreshRateAutoSwitcher
             {
                 if (config.AppSettings.Settings["freq_batt"] != null)
                 {
-                    freq_batt.Text = config.AppSettings.Settings["freq_batt"].Value;
+                    
+                    freq_batt.SelectedIndex = ((List<uint>)freq_batt.DataSource).IndexOf(uint.Parse(config.AppSettings.Settings["freq_batt"].Value));
                 };
 
                 if (config.AppSettings.Settings["freq_plugged"] != null)
                 {
-                    freq_plugged.Text = config.AppSettings.Settings["freq_plugged"].Value;
+                    
+                    freq_plugged.SelectedIndex = ((List<uint>)freq_plugged.DataSource).IndexOf(uint.Parse(config.AppSettings.Settings["freq_plugged"].Value));
                 };
 
                 if (config.AppSettings.Settings["Monitor"] != null)
@@ -245,6 +247,15 @@ namespace RefreshRateAutoSwitcher
             {
                 label4.Text = "Error accessing task scheduler";
             }
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //Set the refresh rate comboboxes
+            var adapterName = ((KeyValuePair<string, string>)comboBox1.SelectedItem).Key;
+            freq_batt.DataSource = Program.displaySettings.Get_REFRESH_RATE(adapterName).ToList();
+            freq_plugged.DataSource = Program.displaySettings.Get_REFRESH_RATE(adapterName).ToList();
 
         }
     }

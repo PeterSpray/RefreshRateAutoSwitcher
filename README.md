@@ -13,7 +13,7 @@ Require [.NET 6.0 Runtime](https://dotnet.microsoft.com/en-us/download)
 ## Instruction
 
 1. Download the files from Release. **(Do not delete/move the files after adding the task to Task Scheduler, they are required to work.)**
-2. Run the tool, Select the monitor and enter both refresh rates. Then click Save Settings.
+2. Run the tool, Select monitor and both refresh rates. Then click Save Settings.
 3. A Test run is available, if the setting is applied correctly, DISP_CHANGE_SUCCESSFUL should be shown in Result.
 4. Use Add task to Task Scheduler for auto switch. It would trigger when the laptop is unplugged/plugged in. When triggered, the tool would launch, change the refresh rate, and close itself if success.
 5. Remove the task from Task Scheduler with the tool. Moving the files would require removing and adding the task.

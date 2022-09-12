@@ -31,14 +31,14 @@
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.ApplyButton = new System.Windows.Forms.Button();
-            this.freq_plugged = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.freq_batt = new System.Windows.Forms.TextBox();
             this.SaveSettings = new System.Windows.Forms.Button();
             this.AddTask = new System.Windows.Forms.Button();
+            this.freq_plugged = new System.Windows.Forms.ComboBox();
+            this.freq_batt = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // label1
@@ -53,12 +53,14 @@
             // 
             // comboBox1
             // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(12, 43);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(789, 36);
             this.comboBox1.TabIndex = 1;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // ApplyButton
             // 
@@ -70,14 +72,6 @@
             this.ApplyButton.Text = "Test run";
             this.ApplyButton.UseVisualStyleBackColor = true;
             this.ApplyButton.Click += new System.EventHandler(this.ApplyButton_Click);
-            // 
-            // freq_plugged
-            // 
-            this.freq_plugged.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.freq_plugged.Location = new System.Drawing.Point(333, 112);
-            this.freq_plugged.Name = "freq_plugged";
-            this.freq_plugged.Size = new System.Drawing.Size(125, 38);
-            this.freq_plugged.TabIndex = 3;
             // 
             // label2
             // 
@@ -119,14 +113,6 @@
             this.label5.TabIndex = 7;
             this.label5.Text = "Refresh rate on battery:";
             // 
-            // freq_batt
-            // 
-            this.freq_batt.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.freq_batt.Location = new System.Drawing.Point(333, 170);
-            this.freq_batt.Name = "freq_batt";
-            this.freq_batt.Size = new System.Drawing.Size(125, 38);
-            this.freq_batt.TabIndex = 8;
-            // 
             // SaveSettings
             // 
             this.SaveSettings.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -149,19 +135,39 @@
             this.AddTask.UseVisualStyleBackColor = true;
             this.AddTask.Click += new System.EventHandler(this.AddTask_Click);
             // 
+            // freq_plugged
+            // 
+            this.freq_plugged.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.freq_plugged.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.freq_plugged.FormattingEnabled = true;
+            this.freq_plugged.Location = new System.Drawing.Point(333, 116);
+            this.freq_plugged.Name = "freq_plugged";
+            this.freq_plugged.Size = new System.Drawing.Size(125, 39);
+            this.freq_plugged.TabIndex = 11;
+            // 
+            // freq_batt
+            // 
+            this.freq_batt.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.freq_batt.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.freq_batt.FormattingEnabled = true;
+            this.freq_batt.Location = new System.Drawing.Point(333, 176);
+            this.freq_batt.Name = "freq_batt";
+            this.freq_batt.Size = new System.Drawing.Size(125, 39);
+            this.freq_batt.TabIndex = 12;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(813, 323);
+            this.Controls.Add(this.freq_batt);
+            this.Controls.Add(this.freq_plugged);
             this.Controls.Add(this.AddTask);
             this.Controls.Add(this.SaveSettings);
-            this.Controls.Add(this.freq_batt);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.freq_plugged);
             this.Controls.Add(this.ApplyButton);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.label1);
@@ -178,13 +184,13 @@
         private Label label1;
         private ComboBox comboBox1;
         private Button ApplyButton;
-        private TextBox freq_plugged;
         private Label label2;
         private Label label3;
         private Label label4;
         private Label label5;
-        private TextBox freq_batt;
         private Button SaveSettings;
         private Button AddTask;
+        private ComboBox freq_plugged;
+        private ComboBox freq_batt;
     }
 }
