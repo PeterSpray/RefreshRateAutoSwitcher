@@ -9,8 +9,11 @@ namespace RefreshRateAutoSwitcher
     {
         public static Form1 form1;
         public static DisplaySettings displaySettings;
-
-        public static string autorunArg = "/autorun";
+        public static Controller controller;
+        public static readonly string autorunArg = "/autorun";
+        public static readonly bool autorun = false;
+        public static readonly string taskName = @"RefreshRateAutoSwitcher";
+        public static readonly int powerSourceChangeEventID = 105;
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -21,10 +24,16 @@ namespace RefreshRateAutoSwitcher
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
             displaySettings = new DisplaySettings();
-            form1 = new Form1(args.Contains(autorunArg));
-            Application.Run(form1);
-            
-
+            controller = new Controller();
+            if (args.Contains(autorunArg))
+            {
+                controller.AutoRun();
+            }
+            else
+            {
+                form1 = new Form1();
+                Application.Run(form1);
+            }
         }
     }
 }

@@ -1,19 +1,10 @@
 using Windows.Win32.Graphics.Gdi;
-using System.Configuration;
-using Microsoft.Win32.TaskScheduler;
 
 namespace RefreshRateAutoSwitcher
 {
     public partial class Form1 : Form
     {
-
-        Configuration config =
-           ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-        bool autorun = false;
-        static string taskName = @"RefreshRateAutoSwitcher";
-        static int powerSourceChangeEventID = 105;
-        public Form1(bool autorun)
+        public Form1()
         {
             InitializeComponent();
 
@@ -24,7 +15,7 @@ namespace RefreshRateAutoSwitcher
             {
                 var adapterName = mode.DeviceName.ToString();
                 //Look for deviceString of the graphics card, only need deviceName of the video adapter for display settings
-                dict.Add(adapterName, string.Format("{0}, {1}, {2}", adapterName, dds_adapter.Where(o => o.DeviceName.ToString() == adapterName.Substring(0, adapterName.IndexOf("\\Monitor"))).FirstOrDefault().DeviceString, mode.DeviceString));
+                dict.Add(adapterName, string.Format("{0}, {1}", dds_adapter.Where(o => o.DeviceName.ToString() == adapterName.Substring(0, adapterName.IndexOf("\\Monitor"))).FirstOrDefault().DeviceString, mode.DeviceString));
             }
 
             comboBox1.DisplayMember = "Value";
@@ -32,112 +23,54 @@ namespace RefreshRateAutoSwitcher
             comboBox1.DataSource = dict.ToList();
             try
             {
-                if (config.AppSettings.Settings["freq_batt"] != null)
-                {
-                    
-                    freq_batt.SelectedIndex = ((List<uint>)freq_batt.DataSource).IndexOf(uint.Parse(config.AppSettings.Settings["freq_batt"].Value));
-                };
+                Program.controller.LoadSettings();
 
-                if (config.AppSettings.Settings["freq_plugged"] != null)
-                {
-                    
-                    freq_plugged.SelectedIndex = ((List<uint>)freq_plugged.DataSource).IndexOf(uint.Parse(config.AppSettings.Settings["freq_plugged"].Value));
-                };
+                freq_batt.SelectedIndex = ((List<uint>)freq_batt.DataSource).IndexOf(uint.Parse(Program.controller.Freq_batt));
+                freq_plugged.SelectedIndex = ((List<uint>)freq_plugged.DataSource).IndexOf(uint.Parse(Program.controller.Freq_plugged));
+                comboBox1.SelectedIndex = comboBox1.Items.IndexOf(dict.Where(o => o.Key == Program.controller.AdapterName).FirstOrDefault().Key);
 
-                if (config.AppSettings.Settings["Monitor"] != null)
-                {
-                    comboBox1.SelectedIndex = comboBox1.Items.IndexOf(dict.Where(o => o.Key == config.AppSettings.Settings["Monitor"].Value).FirstOrDefault());
-                };
+                if (comboBox1.SelectedIndex == -1) { comboBox1.SelectedIndex = 0; };
+                if (freq_batt.SelectedIndex == -1) { freq_batt.SelectedIndex = 0; };
+                if (freq_plugged.SelectedIndex == -1) { freq_plugged.SelectedIndex = 0; };
             }
-            catch
+            catch (Exception ex)
             {
-                label4.Text = "Error looading config";
+                label4.Text = ex.Message;
             }
 
             label4.Text = "";
 
-            if (autorun)
-            {
-                this.autorun = autorun;
-            }
-
             AddTask_Update();
 
         }
-
         private void AddTask_Update()
         {
             try
             {
-                using (TaskService ts = new TaskService())
+                if (Program.controller.IsTaskExist(Program.taskName))
                 {
-                    //Check if task exist
-                    Microsoft.Win32.TaskScheduler.Task t = TaskService.Instance.GetTask(taskName);
-                    if (t != null)
-                    {
-                        AddTask.Text = "Remove task from Task Scheduler";
-                    }
-                    else
-                    {
-                        AddTask.Text = "Add task to Task Scheduler";
-                    }
+                    AddTask.Text = "Remove task from Task Scheduler";
                 }
-            }
-            catch
-            {
-                label4.Text = "Error accessing Task Scheduler";
-            }
-        }
-
-        //For task scheduler
-        private void Form1_autorun(object sender, EventArgs e)
-        {
-            if (autorun)
-            {
-                ApplyButton_Click(null, null);
-                //Auto exit if success
-                if (label4.Text == "DISP_CHANGE_SUCCESSFUL")
+                else
                 {
-                    Application.Exit();
-                };
+                    AddTask.Text = "Add task to Task Scheduler";
+                }
 
             }
+            catch (Exception ex)
+            {
+                label4.Text = ex.Message;
+            }
         }
-
         private void ApplyButton_Click(object sender, EventArgs e)
         {
-            SaveSettings_Click(null, null);
 
             try
             {
-                uint freq;
-                try
-                {
-                    //On battery
-                    if (SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Offline)
-                    {
-                        freq = Convert.ToUInt32(Program.form1.freq_batt.Text);
-                    }
-                    else
-                    {
-                        freq = Convert.ToUInt32(Program.form1.freq_plugged.Text);
-                    }
+                var adapterName = ((KeyValuePair<string, string>)comboBox1.SelectedItem).Key;
+                Program.controller.SaveSettings(adapterName, freq_batt.Text, freq_plugged.Text);
 
-                }
-                catch
-                {
-                    throw new Exception("Refresh rate is incorrect");
-                }
-
-                try
-                {
-                    var adapterName = ((KeyValuePair<string, string>)Program.form1.comboBox1.SelectedItem).Key;
-                    label4.Text = Program.displaySettings.apply(adapterName, freq);
-                }
-                catch
-                {
-                    throw new Exception("Monitor selection is incorrect");
-                }
+                label4.Text = Program.controller.ApplySettings(adapterName, freq_batt.Text, freq_plugged.Text);
             }
             catch (Exception ex)
             {
@@ -149,37 +82,11 @@ namespace RefreshRateAutoSwitcher
         private void SaveSettings_Click(object sender, EventArgs e)
         {
             //Save settings
-
             try
             {
-                try
-                {
-                    Convert.ToUInt32(Program.form1.freq_batt.Text);
-                    config.AppSettings.Settings.Remove("freq_batt");
-                    config.AppSettings.Settings.Add("freq_batt", freq_batt.Text.ToString());
+                var adapterName = ((KeyValuePair<string, string>)comboBox1.SelectedItem).Key;
+                Program.controller.SaveSettings(adapterName, freq_batt.Text, freq_plugged.Text);
 
-                    Convert.ToUInt32(Program.form1.freq_plugged.Text);
-                    config.AppSettings.Settings.Remove("freq_plugged");
-                    config.AppSettings.Settings.Add("freq_plugged", freq_plugged.Text.ToString());
-
-                }
-                catch
-                {
-                    throw new Exception("Refresh rate is incorrect");
-                }
-                try
-                {
-                    config.AppSettings.Settings.Remove("Monitor");
-                    config.AppSettings.Settings.Add("Monitor", ((KeyValuePair<string, string>)Program.form1.comboBox1.SelectedItem).Key);
-
-                }
-                catch
-                {
-                    throw new Exception("Monitor selection is incorrect");
-                }
-
-
-                config.Save(ConfigurationSaveMode.Modified);
                 label4.Text = "Settings saved";
 
             }
@@ -196,66 +103,37 @@ namespace RefreshRateAutoSwitcher
 
             try
             {
-                using (TaskService ts = new TaskService())
+                if (Program.controller.AddRemoveTask(Program.taskName, Program.powerSourceChangeEventID))
                 {
-                    //Check if task exist
-                    Microsoft.Win32.TaskScheduler.Task t = TaskService.Instance.GetTask(taskName);
-                    if (t == null)
-                    {
-                        //add
-                        try
-                        {
-
-                            TaskDefinition td = ts.NewTask();
-                            td.RegistrationInfo.Description = "Auto switch refresh rate when on battery/plugged in.";
-                            td.Triggers.Add(new EventTrigger("System", "Microsoft-Windows-Kernel-Power", powerSourceChangeEventID));
-                            td.Actions.Add(new ExecAction(Application.ExecutablePath, Program.autorunArg));
-                            td.Settings.StopIfGoingOnBatteries = false;
-                            td.Settings.DisallowStartIfOnBatteries = false;
-
-                            ts.RootFolder.RegisterTaskDefinition(taskName, td);
-
-
-                            label4.Text = "Task added to task scheduler";
-                            AddTask_Update();
-                        }
-                        catch
-                        {
-                            label4.Text = "Error adding task";
-                        }
-
-                    }
-                    else
-                    {
-                        //remove
-                        try
-                        {
-                            ts.RootFolder.DeleteFolder(t.Name);
-
-                            label4.Text = "Task removed from task scheduler";
-                            AddTask_Update();
-                        }
-                        catch
-                        {
-                            label4.Text = "Error removing task";
-                        }
-
-                    };
+                    label4.Text = "Task added to task scheduler";
                 }
+                else
+                {
+                    label4.Text = "Task removed from task scheduler";
+                }
+
+                AddTask_Update();
+
             }
-            catch
+            catch (Exception ex)
             {
-                label4.Text = "Error accessing task scheduler";
+                label4.Text = ex.Message;
             }
 
         }
 
+
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Set the refresh rate comboboxes
-            var adapterName = ((KeyValuePair<string, string>)comboBox1.SelectedItem).Key;
-            freq_batt.DataSource = Program.displaySettings.Get_REFRESH_RATE(adapterName).ToList();
-            freq_plugged.DataSource = Program.displaySettings.Get_REFRESH_RATE(adapterName).ToList();
+            string adapterName;
+            if (comboBox1.SelectedItem != null)
+            {
+                adapterName = ((KeyValuePair<string, string>)comboBox1.SelectedItem).Key;
+                freq_batt.DataSource = Program.displaySettings.Get_REFRESH_RATE(adapterName).ToList();
+                freq_plugged.DataSource = Program.displaySettings.Get_REFRESH_RATE(adapterName).ToList();
+
+            }
 
         }
     }
